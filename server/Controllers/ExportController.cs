@@ -1,23 +1,30 @@
 ﻿using System;
-using System.Linq;
-using System.Linq.Dynamic.Core;
+using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Mvc;
-using System.Text;
 using System.IO;
+using System.Linq;
+using System.Linq.Dynamic.Core;
+using System.Reflection;
+using System.Text;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
-using System.Reflection;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace MyBlazorApp
 {
     public partial class ExportController : Controller
     {
+        private readonly MyBlazorAppDbService service;
+
+        public ExportController(MyBlazorAppDbService service)
+        {
+            this.service = service;
+        }
+
         public IQueryable ApplyQuery<T>(IQueryable<T> items, IQueryCollection query = null) where T : class
         {
             if (query != null)
@@ -78,7 +85,6 @@ namespace MyBlazorApp
 
                 sb.AppendLine(string.Join(",", row.ToArray()));
             }
-
 
             var result = new FileStreamResult(new MemoryStream(UTF8Encoding.Default.GetBytes($"{string.Join(",", columns.Select(c => c.Key))}{System.Environment.NewLine}{sb.ToString()}")), "text/csv");
             result.FileDownloadName = (!string.IsNullOrEmpty(fileName) ? fileName : "Export") + ".csv";
@@ -175,7 +181,6 @@ namespace MyBlazorApp
                     sheetData.AppendChild(row);
                 }
 
-
                 workbookPart.Workbook.Save();
             }
 
@@ -189,7 +194,6 @@ namespace MyBlazorApp
 
             return result;
         }
-
 
         public static object GetValue(object target, string name)
         {
@@ -228,6 +232,7 @@ namespace MyBlazorApp
                 case TypeCode.UInt32:
                 case TypeCode.UInt64:
                     return true;
+
                 default:
                     return false;
             }
@@ -246,6 +251,7 @@ namespace MyBlazorApp
                 case TypeCode.UInt32:
                 case TypeCode.UInt64:
                     return true;
+
                 default:
                     return false;
             }

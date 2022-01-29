@@ -1,19 +1,14 @@
-﻿using System;
-using System.Linq;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MyBlazorApp.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace MyBlazorApp
 {
     public partial class ExportMyBlazorAppDbController : ExportController
     {
-        private readonly MyBlazorAppDbContext context;
         private readonly MyBlazorAppDbService service;
-        public ExportMyBlazorAppDbController(MyBlazorAppDbContext context, MyBlazorAppDbService service)
+
+        public ExportMyBlazorAppDbController(MyBlazorAppDbService service) : base(service)
         {
             this.service = service;
-            this.context = context;
         }
 
         [HttpGet("/export/MyBlazorAppDb/items/csv")]
@@ -29,6 +24,7 @@ namespace MyBlazorApp
         {
             return ToExcel(ApplyQuery(await service.GetItems(), Request.Query), fileName);
         }
+
         [HttpGet("/export/MyBlazorAppDb/todolists/csv")]
         [HttpGet("/export/MyBlazorAppDb/todolists/csv(fileName='{fileName}')")]
         public async System.Threading.Tasks.Task<FileStreamResult> ExportToDoListsToCSV(string fileName = null)
